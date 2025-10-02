@@ -76,7 +76,43 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  res.send("Login");
+  try {
+    const { email, password } = req.body;
+
+    // No email or password
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Check for user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Check if password matches
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Generate token
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImage: user.profileImage,
+      },
+    });
+  } catch (error) {
+    console.log("Error logging in user", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 export default router;
