@@ -5,6 +5,7 @@ import protectRoute from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
+// Create a new book
 router.post("/", protectRoute, async (req, res) => {
   try {
     const { title, caption, rating, image } = req.body;
@@ -35,6 +36,7 @@ router.post("/", protectRoute, async (req, res) => {
   }
 });
 
+// Get all books with pagination
 router.get("/", protectRoute, async (req, res) => {
   try {
     const page = req.query.page || 1;
@@ -62,9 +64,24 @@ router.get("/", protectRoute, async (req, res) => {
   }
 });
 
+// Get recommended books by active/logged user
+router.get("/user", protectRoute, async (req, res) => {
+  try {
+    const books = await Book.find({ user: req.user._id }).sort({
+      createdAt: -1,
+    });
+
+    res.json(books);
+  } catch (error) {
+    console.error("Get user books error:", error.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Delete a book by ID
 router.delete("/:id", protectRoute, async (req, res) => {
   try {
-    // Find book by Id
+    // Find book by ID
     const book = await Book.findById(req.params.id);
 
     // Check if book exists
