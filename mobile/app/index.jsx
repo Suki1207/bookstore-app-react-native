@@ -1,7 +1,17 @@
 import { Link } from "expo-router";
-import { Text, View } from "react-native";
+import { Text, View, TouchableOpacity } from "react-native";
+import useAuthStore from "../store/authStore";
+import { useEffect } from "react";
 
 export default function Index() {
+  const { user, token, checkAuth, logout } = useAuthStore();
+
+  console.log(user, token);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
   return (
     <View
       style={{
@@ -10,7 +20,12 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>Hello</Text>
+      <Text>Hello {user?.username}</Text>
+      <Text>Token: {token}</Text>
+
+      <TouchableOpacity onPress={logout}>
+        <Text>Logout</Text>
+      </TouchableOpacity>
 
       <Link href="/(auth)/signup">Signup</Link>
       <Link href="/(auth)">Login</Link>
